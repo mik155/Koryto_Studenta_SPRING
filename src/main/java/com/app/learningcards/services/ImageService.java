@@ -1,14 +1,17 @@
 package com.app.learningcards.services;
 
 import com.app.learningcards.models.recipe.Recipe;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+@Service
 public class ImageService
 {
     private static final String IMG_URI = "http://localhost:9000/api/v1/recipe/img/";
@@ -57,6 +60,17 @@ public class ImageService
         catch(IOException e)
         {
             return null;
+        }
+    }
+
+    public void deleteRecipeImage(Recipe recipe)
+    {
+        String path = recipe.getImagePath();
+        String imageName = path.substring(path.lastIndexOf('/'));
+        if(!imageName.equals("default.jpg"))
+        {
+            File file = new File(IMG_STORAGE_PATH + "/" + imageName);
+            file.delete();
         }
     }
 }

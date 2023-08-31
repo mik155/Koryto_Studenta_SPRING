@@ -1,6 +1,8 @@
 package com.app.learningcards.models.recipe;
 
 import com.app.learningcards.models.Ingriedient;
+import com.app.learningcards.models.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,16 +37,37 @@ public class Recipe
     protected String name;
     protected String description;
     protected String imagePath;
-    @OneToMany(
-            cascade = CascadeType.ALL,
+    @ManyToMany(
+            cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST},
             fetch = FetchType.EAGER
+    )
+    @JoinTable(
+            name = "recipe_ingriedient",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "ingriedient_id")
     )
     public List<Ingriedient> ingredients;
     protected int minutesToMake;
     protected int ingriedientNumber;
     protected int likes;
-    protected Long creatorId;
+    @JsonIgnore
+    @ManyToOne(
+            cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.EAGER
+    )
+    @JoinColumn(name = "user_id")
+    private User user;
 
+    @ManyToMany(
+            cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.LAZY
+    )
+    @JoinTable(
+            name = "user_fav_recipe",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> favUsers;
     public boolean equals(Object obj)
     {
         if(! (obj instanceof Recipe other))

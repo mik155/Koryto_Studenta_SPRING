@@ -60,11 +60,23 @@ public class User implements UserDetails
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER
+    @ManyToMany(
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH},
+            fetch = FetchType.LAZY
+    )
+    @JoinTable(
+            name = "user_fav_recipe",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "recipe_id")
     )
     public List<Recipe> favRecipes;
+
+    @OneToMany(
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH},
+            fetch = FetchType.LAZY,
+            mappedBy = "user"
+    )
+    public List<Recipe> myRecipes;
     public User(String login, String password, String email, Role role)
     {
         this.login = login;

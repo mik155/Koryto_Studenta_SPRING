@@ -41,7 +41,7 @@ public class RecipeController
                 .minutesToMake(request.getMinutesToMake())
                 .ingriedientNumber(request.getIngredients() != null ? request.getIngredients().size() : 0)
                 .likes(0)
-                .creatorId(user.getId())
+                .user(user)
                 .imagePath(ImageService.getImagePath(imageName))
                 .build();
         recipeService.addIngriedients(recipe, request.getIngredients());
@@ -103,7 +103,7 @@ public class RecipeController
     }
 
     @PostMapping(path="/delete")
-    public void deleteFile(@RequestBody DeleteRecipeRequest request, @AuthenticationPrincipal User user)
+    public void deleteRecipe(@RequestBody DeleteRecipeRequest request, @AuthenticationPrincipal User user)
     {
         recipeService.deleteRecipe(request.getRecipeId(), request.getCategories(), user);
     }

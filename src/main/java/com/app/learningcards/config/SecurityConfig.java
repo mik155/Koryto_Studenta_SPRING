@@ -32,7 +32,7 @@ public class SecurityConfig
                 .anyRequest()
                 .authenticated()
                 .and()
-                .sessionManagement()
+                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)

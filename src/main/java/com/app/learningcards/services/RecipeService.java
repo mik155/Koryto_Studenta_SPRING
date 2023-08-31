@@ -5,6 +5,7 @@ import com.app.learningcards.models.User;
 import com.app.learningcards.models.recipe.Recipe;
 import com.app.learningcards.models.recipe.RecipeCategory;
 import com.app.learningcards.repository.RecipeRepository;
+import com.app.learningcards.repository.UserRepository;
 import com.app.learningcards.request.recipe.RecipeResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,10 @@ import java.util.UUID;
 public class RecipeService
 {
     private RecipeRepository recipeRepository;
+    private UserRepository userRepository;
+
     private IngriedientService ingriedientService;
+    private ImageService imgService;
 
     public Recipe getRecipe(Long id)
     {
@@ -41,16 +45,22 @@ public class RecipeService
     {
         List<Recipe> recipes = new LinkedList<>();
         if(categories != null)
-            categories.forEach( c ->
-            {
-                recipes.addAll(recipeRepository.findByCategory(c));
-            });
+            categories.forEach(
+                    c -> recipes.addAll(recipeRepository.findByCategory(c))
+            );
         return recipes;
     }
 
     public Recipe saveRecipe(Recipe recipe)
     {
-        return recipeRepository.save(recipe);
+        User user = userRepository.findById(recipe.getUser().getId()).orElse(null);
+        if(user != null)
+        {
+            recipe.setUser(user);
+            return recipeRepository.save(recipe);
+        }
+
+        return null;
     }
 
     public List<Recipe> getAllRecipes()
@@ -60,8 +70,12 @@ public class RecipeService
 
     public List<Recipe> deleteRecipe(Long recipeId, List<RecipeCategory> categories, User user)
     {
-        if(Objects.equals(recipeRepository.getReferenceById(recipeId).getCreatorId(), user.getId()))
+        Recipe recipe = recipeRepository.getReferenceById(recipeId);
+        if(Objects.equals(recipe.getUser().getId(), user.getId()))
             recipeRepository.deleteById(recipeId);
+
+        imgService.deleteRecipeImage(recipe);
+
         return getRecipes(categories);
     }
 
@@ -85,4 +99,6 @@ public class RecipeService
     {
         return recipeRepository.getFavRecipes(user.getId());
     }
+
+
 }
